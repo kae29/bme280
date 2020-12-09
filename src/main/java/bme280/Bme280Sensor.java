@@ -41,6 +41,8 @@ public class Bme280Sensor {
         }
         // initialize calibration parameters
         bme280Calibration = new Bme280CalibrationParams(this);
+        
+        // TODO initialize oversampling. By default it could be 0 and sensor is in sleep mode.
     }
 
     /**
