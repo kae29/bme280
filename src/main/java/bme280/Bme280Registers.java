@@ -16,11 +16,19 @@ public final class Bme280Registers {
 
     /**
      * Temperature register address.
-     * 0xFC - temperature xlsb (read-only)
-     * 0xFB - temperature lsb (read-only)
      * 0xFA - temperature msb (read-only)
      */
-    public static final int TEMPERATURE_REG = 0xFA;
+    public static final int TEMP_MSB = 0xFA;
+    /**
+     * Temperature register address.
+     * 0xFB - temperature lsb (read-only)
+     */
+    public static final int TEMP_LSB = 0xFB;
+    /**
+     * Temperature register address.
+     * 0xFC - temperature xlsb (used only bits [7:4]) (read-only)
+     */
+    public static final int TEMP_XLSB = 0xFC;
 
     /**
      * Humidity register address.

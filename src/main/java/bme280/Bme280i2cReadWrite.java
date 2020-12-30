@@ -1,5 +1,7 @@
 package bme280;
 
+import java.nio.ByteBuffer;
+
 import jdk.dio.i2cbus.I2CDevice;
 /**
  * This class contain basic read-write i2c methods for BME 280.
@@ -24,7 +26,17 @@ public class Bme280i2cReadWrite {
      * @return register data
      */
     public int readRegister(int register) {
-        return 0;
+        ByteBuffer dst = ByteBuffer.allocateDirect(1);
+        try {
+            int bytesread = i2CDevice.read(register, 1, dst);
+        }
+        catch (Exception e) {
+            return 0;
+        }
+
+        dst.rewind();    
+        int result = dst.get();
+        return result < 0? result+256:result;
     }
 
     /**
