@@ -1,5 +1,6 @@
 package bme280;
 
+import jdk.dio.i2cbus.I2CDevice;
 /**
  * This class contain basic read-write i2c methods for BME 280.
  */

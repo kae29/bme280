@@ -24,7 +24,7 @@ public class App
         
         System.console().writer().println("Chip ID = " + bme280Sensor.getChipId());
         
-        for (int i=0; i<100; i++) {
+        for (int i=0; i<10; i++) {
             Temp = bme280Sensor.getTemperature();
             Pressure = bme280Sensor.getPressure();
             Humid = bme280Sensor.getHumidity();
@@ -40,5 +40,6 @@ public class App
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package bme280pi;
+package bme280;
 
 import jdk.dio.DeviceManager;
 import jdk.dio.i2cbus.I2CDeviceConfig;
@@ -104,10 +104,10 @@ public class Bme280Sensor {
      * @param sensorType - temperature(0), pressure(1) or humidity(2)
      * @param oversampling new oversampling value
      */
-    public void setOversampling(int sensorType, long oversampling) {
+    public void setOversampling(int sensorType, int oversampling) {
         assert sensorType >= 0 && sensorType <= 2;
         assert oversampling >=0b000 && oversampling <= 0b111;
-        long regData = 0;
+        int regData = 0;
         if (sensorType == 0) {
             // read existing register data to overwrite only related oversampling
             regData =  bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
@@ -130,8 +130,8 @@ public class Bme280Sensor {
      *   0x10 or 0x01 - Forced Mode
      *   0x11 - Normal Mode
      */
-    public void setChipMode(long newMode) {
-        long regData = bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
+    public void setChipMode(int newMode) {
+        int regData = bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
         // clear first 2 bits
         regData = regData & 0xFC;
         // set new Mode
