@@ -5,15 +5,20 @@ import jdk.dio.i2cbus.I2CDeviceConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class Bme280i2cReadWriteTest {
     private final int CTRL_NUM = 1;
     private final static int BME280_ADDR = 0x76;
 
-    private Bme280i2cReadWrite bme280IO;
+    private static Bme280i2cReadWrite bme280IO;
 
     public Bme280i2cReadWriteTest() throws Exception {
+        if (bme280IO != null) {
+            return;
+        }
+        
         I2CDeviceConfig bme280DeviceConfig = new I2CDeviceConfig.Builder()
             .setControllerNumber(CTRL_NUM)
             .setAddress(BME280_ADDR, I2CDeviceConfig.ADDR_SIZE_7)
@@ -39,5 +44,19 @@ public class Bme280i2cReadWriteTest {
     public void ReadF0RegisterTest(){
         assertNotNull(bme280IO);
         assertEquals(0xff, bme280IO.readRegister(0xf0));
+    }
+    
+    @Test
+    public void WrirteF2RegisterTest() {
+        bme280IO.writeRegister(0xf2, 0b010);
+        bme280IO.writeRegister(0xf4, 0b00100111); 
+
+        assertEquals(0b00100111, bme280IO.readRegister(0xf4));
+        assertEquals(0b010, bme280IO.readRegister(0xf2));
+
+        // verify that humidity is not equal to 0x8000
+        assertNotEquals(0x80, bme280IO.readRegister(0xfd));
+        assertNotEquals(0x00, bme280IO.readRegister(0xfe));
+
     }
 }
