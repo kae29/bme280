@@ -29,8 +29,12 @@ public class Bme280i2cReadWrite {
         ByteBuffer dst = ByteBuffer.allocateDirect(1);
         try {
             int bytesread = i2CDevice.read(register, 1, dst);
+            if (bytesread != 0) {
+                throw new Exception("Data is not read from register: " + register);
+            }   
         }
         catch (Exception e) {
+            e.printStackTrace();
             return 0;
         }
 
@@ -52,6 +56,9 @@ public class Bme280i2cReadWrite {
                 try {
                     dst.put(data<128?(byte)data:(byte)(data-256));
                     int bytewritten = i2CDevice.write(register, 1, dst);
+                    if (bytewritten != 0) {
+                        throw new Exception("Data is not written into register: " + register);
+                    }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
