@@ -48,6 +48,7 @@ public class Bme280i2cReadWrite {
         if (register == 0xf5 || register == 0xf4 || register == 0xf2 || register == 0xe0) {
             if (data < 256) {
                 ByteBuffer dst = ByteBuffer.allocateDirect(1);
+                dst.rewind();
                 try {
                     dst.put(data<128?(byte)data:(byte)(data-256));
                     int bytewritten = i2CDevice.write(register, 1, dst);
