@@ -37,7 +37,7 @@ public class Bme280i2cReadWriteTest {
     @Test
     public void ReadIdRegisterTest() {
         assertNotNull(bme280IO);
-        assertEquals(0x60, bme280IO.readRegister(0xD0));
+        assertEquals(0x60, bme280IO.readRegister(Bme280Registers.CHIP_ID_REG));
     }
 
     @Test
@@ -48,15 +48,15 @@ public class Bme280i2cReadWriteTest {
     
     @Test
     public void WrirteF2RegisterTest() {
-        bme280IO.writeRegister(0xf2, 0b010);
-        bme280IO.writeRegister(0xf4, 0b00100111); 
+        bme280IO.writeRegister(Bme280Registers.CTRL_HUM_REG, 0b010);
+        bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, 0b00100111); 
 
-        assertEquals(0b00100111, bme280IO.readRegister(0xf4));
-        assertEquals(0b010, bme280IO.readRegister(0xf2));
+        assertEquals(0b00100111, bme280IO.readRegister(Bme280Registers.CTRL_MES_REG));
+        assertEquals(0b010, bme280IO.readRegister(Bme280Registers.CTRL_HUM_REG));
 
         // verify that humidity is not equal to 0x8000
-        assertNotEquals(0x80, bme280IO.readRegister(0xfd));
-        assertNotEquals(0x00, bme280IO.readRegister(0xfe));
+        assertNotEquals(0x80, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_MSB));
+        assertNotEquals(0x00, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_LSB));
 
     }
 }
