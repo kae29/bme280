@@ -10,9 +10,14 @@ public final class Bme280Registers {
     /**
      * Humidity register address.
      * 0xFE - humidity lsb (read-only)
+     */
+    public static final int HUMIDITY_REG_LSB = 0xFE;
+
+    /**
+     * Humidity register address.
      * 0xFD - humidity msb (read-only)
      */
-    public static final int HUMIDITY_REG = 0xFD;
+    public static final int HUMIDITY_REG_MSB = 0xFD;
 
     /**
      * Temperature register address.
