@@ -37,12 +37,21 @@ public final class Bme280Registers {
 
     /**
      * Humidity register address.
-     * 0xF9 - pressure xlsb (used only bits [7:4]) (read-only)
-     * 0xF8 - pressure lsb (read-only)
      * 0xF7 - pressure msb (read-only)
      */
-    public static final int PRESSURE_REG = 0xF7;
+    public static final int PRES_MSB = 0xF7;
 
+    /**
+     * Humidity register address.
+     * 0xF8 - pressure lsb (read-only)
+     */
+    public static final int PRES_LSB = 0xF8;
+    /**
+     * Humidity register address.
+     * 0xF9 - pressure xlsb (used only bits [7:4]) (read-only)
+     */
+    public static final int PRES_XLSB = 0xF9;
+    
     /**
      * Config register address.
      * 0xF5: [7:5] - [2:0] t_sb todo update
