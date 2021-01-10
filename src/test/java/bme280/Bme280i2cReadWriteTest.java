@@ -47,7 +47,7 @@ public class Bme280i2cReadWriteTest {
     }
     
     @Test
-    public void WrirteF2RegisterTest() {
+    public void WriteOversamplingTest1() {
         bme280IO.writeRegister(Bme280Registers.CTRL_HUM_REG, 0b010);
         bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, 0b00100111); 
 
@@ -58,5 +58,45 @@ public class Bme280i2cReadWriteTest {
         assertNotEquals(0x80, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_MSB));
         assertNotEquals(0x00, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_LSB));
 
+        int temp_xlsb = bme280IO.readRegister(Bme280Registers.TEMP_XLSB);
+        int temp_lsb = bme280IO.readRegister(Bme280Registers.TEMP_LSB);
+        int temp_msb = bme280IO.readRegister(Bme280Registers.TEMP_MSB);
+        
+        // verify that temperature is not equal to 0x800000
+        assertNotEquals(0x800000, temp_msb*0x10000+temp_lsb*0x100+temp_xlsb);
+
+        // verify that pressure is not equal to 0x800000
+        int pres_xlsb = bme280IO.readRegister(Bme280Registers.PRES_XLSB);
+        int pres_lsb = bme280IO.readRegister(Bme280Registers.PRES_LSB);
+        int pres_msb = bme280IO.readRegister(Bme280Registers.PRES_MSB);
+
+        assertNotEquals(0x800000, pres_msb*0x10000+pres_lsb*0x100+pres_xlsb);
+    }
+
+    @Test
+    public void WriteOversamplingTest2() {
+        bme280IO.writeRegister(Bme280Registers.CTRL_HUM_REG, 0b000); // oversampling = 000
+        bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, 0b00000011); // normal mode ovesamplings = 000
+
+        assertEquals(0b00000011, bme280IO.readRegister(Bme280Registers.CTRL_MES_REG));
+        assertEquals(0b000, bme280IO.readRegister(Bme280Registers.CTRL_HUM_REG));
+
+        // verify that humidity is not equal to 0x8000
+        assertEquals(0x80, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_MSB));
+        assertEquals(0x00, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_LSB));
+
+        int temp_xlsb = bme280IO.readRegister(Bme280Registers.TEMP_XLSB);
+        int temp_lsb = bme280IO.readRegister(Bme280Registers.TEMP_LSB);
+        int temp_msb = bme280IO.readRegister(Bme280Registers.TEMP_MSB);
+        
+        // verify that temperature is not equal to 0x800000
+        assertEquals(0x800000, temp_msb*0x10000+temp_lsb*0x100+temp_xlsb);
+
+        // verify that pressure is not equal to 0x800000
+        int pres_xlsb = bme280IO.readRegister(Bme280Registers.PRES_XLSB);
+        int pres_lsb = bme280IO.readRegister(Bme280Registers.PRES_LSB);
+        int pres_msb = bme280IO.readRegister(Bme280Registers.PRES_MSB);
+
+        assertEquals(0x800000, pres_msb*0x10000+pres_lsb*0x100+pres_xlsb);
     }
 }
