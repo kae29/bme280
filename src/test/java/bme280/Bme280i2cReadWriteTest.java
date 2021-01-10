@@ -55,8 +55,8 @@ public class Bme280i2cReadWriteTest {
         assertEquals(0b010, bme280IO.readRegister(Bme280Registers.CTRL_HUM_REG));
 
         // verify that humidity is not equal to 0x8000
-        assertNotEquals(0x80, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_MSB));
-        assertNotEquals(0x00, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_LSB));
+        assertNotEquals(0x80, bme280IO.readRegister(Bme280Registers.HUM_MSB));
+        assertNotEquals(0x00, bme280IO.readRegister(Bme280Registers.HUM_LSB));
 
         int temp_xlsb = bme280IO.readRegister(Bme280Registers.TEMP_XLSB);
         int temp_lsb = bme280IO.readRegister(Bme280Registers.TEMP_LSB);
@@ -82,8 +82,8 @@ public class Bme280i2cReadWriteTest {
         assertEquals(0b000, bme280IO.readRegister(Bme280Registers.CTRL_HUM_REG));
 
         // verify that humidity is not equal to 0x8000
-        assertEquals(0x80, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_MSB));
-        assertEquals(0x00, bme280IO.readRegister(Bme280Registers.HUMIDITY_REG_LSB));
+        assertEquals(0x80, bme280IO.readRegister(Bme280Registers.HUM_MSB));
+        assertEquals(0x00, bme280IO.readRegister(Bme280Registers.HUM_LSB));
 
         int temp_xlsb = bme280IO.readRegister(Bme280Registers.TEMP_XLSB);
         int temp_lsb = bme280IO.readRegister(Bme280Registers.TEMP_LSB);
