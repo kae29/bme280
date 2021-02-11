@@ -42,7 +42,9 @@ public class Bme280Sensor {
         // initialize calibration parameters
         bme280Calibration = new Bme280CalibrationParams(this);
         
-        // TODO initialize oversampling. By default it could be 0 and sensor is in sleep mode.
+        setChipMode(0b00); // Set Sleeping Mode
+        setChipMode(0b11); // Set Normal Mode
+        setOversampling(0b001); // set Oversampling x 1
     }
 
     /**
@@ -69,8 +71,23 @@ public class Bme280Sensor {
      * 0b11 - Normal Mode
      * @return chip mode
      */
-    public long getChipMode() {
-        return bme280IO.readRegister(Bme280Registers.CTRL_MES_REG) & 0x03;
+    public int getChipMode() {
+        return bme280IO.readRegister(Bme280Registers.CTRL_MES_REG) & 0b00000011;
+    }
+
+    /**
+     * Set Chip Mode.
+     *   0b00 - Sleep Mode
+     *   0x10 or 0x01 - Forced Mode
+     *   0x11 - Normal Mode
+     */
+    public void setChipMode(int newMode) {
+        int regData = bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
+        // clear first 2 bits
+        regData = regData & 0xFC;
+        // set new Mode
+        regData = regData | (newMode & 0x03);
+        bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, regData);
     }
 
     /**
@@ -100,42 +117,18 @@ public class Bme280Sensor {
     }
     
     /**
-     * Set Temperature/Pressure/Humidity oversampling
-     * @param sensorType - temperature(0), pressure(1) or humidity(2)
+     * Set the same oversampling for all sensors
      * @param oversampling new oversampling value
      */
-    public void setOversampling(int sensorType, int oversampling) {
-        assert sensorType >= 0 && sensorType <= 2;
-        assert oversampling >=0b000 && oversampling <= 0b111;
-        int regData = 0;
-        if (sensorType == 0) {
-            // read existing register data to overwrite only related oversampling
-            regData =  bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
-            regData = (regData & 0b00011111) | (oversampling << 5);
-            bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, regData);
-        }
-        if (sensorType == 1) {
-            regData =  bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
-            regData = (regData & 0b11100011) | (oversampling << 2);
-            bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, oversampling);
-        }
-        if (sensorType == 2) {
-            bme280IO.writeRegister(Bme280Registers.CTRL_HUM_REG, oversampling);
-        }
-    }
+    public void setOversampling(int oversampling) {
+        assert oversampling >=0b000 && oversampling <= 0b101;
+        // first write humidity since the value CTRL_HUM 
+        //  will be updated only after CTRL_MES s owerwritten (see Chapter 5.4.5)
+        bme280IO.writeRegister(Bme280Registers.CTRL_HUM_REG, oversampling);
 
-    /**
-     * Set Chip Mode.
-     *   0b00 - Sleep Mode
-     *   0x10 or 0x01 - Forced Mode
-     *   0x11 - Normal Mode
-     */
-    public void setChipMode(int newMode) {
-        int regData = bme280IO.readRegister(Bme280Registers.CTRL_MES_REG);
-        // clear first 2 bits
-        regData = regData & 0xFC;
-        // set new Mode
-        regData = regData | (newMode & 0x03);
+        int chipMode = getChipMode();
+        int regData = (oversampling << 5) | (oversampling << 2) | chipMode;
+        
         bme280IO.writeRegister(Bme280Registers.CTRL_MES_REG, regData);
     }
 
