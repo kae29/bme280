@@ -166,10 +166,33 @@ public class Bme280Sensor {
     /**
      * Returns pressure in Pa as unsigned 32 bit integer.
      * Output value of "102354" equals 102354 Pa = 1023.54 hPa.
+     * see Chapter 4.2.3 Compensation formulas
      * @return current Pressure
      */
     public long getPressure() {
-      return 0;
+        final long msb = bme280IO.readRegister(Bme280Registers.PRES_MSB);
+        final long lsb = bme280IO.readRegister(Bme280Registers.PRES_LSB);
+        final long xlsb = bme280IO.readRegister(Bme280Registers.PRES_LSB) >> 4; // xlsb located in bits [7:4] see Table 18
+        
+        long rawData = (msb << 12) | (lsb<<4) | xlsb;
+        
+        long var1 = (bme280Calibration.t_fine >> 1) - 64000;
+        long var2 = (((var1 >> 2) * (var1 >> 2)) >> 11) * bme280Calibration.DigP6();
+        var2 = var2 + ((var1 * bme280Calibration.DigP5()) << 1);
+        var2 = (var2 >> 2) + (bme280Calibration.DigP4() << 16);
+        var1 = (((bme280Calibration.DigP3() * (((var1 >> 2)*(var1 >> 2)) >> 13)) >> 3) +
+                ((bme280Calibration.DigP2() * var1) >> 1)) >> 18;
+        var1 = ((32768 + var1) * bme280Calibration.DigP1()) >> 15;
+        if (var1 == 0) {
+            return 0; // to avoid exception caused by division by zero
+        }
+        long pressure = ((1048576 - rawData) - (var2 >> 12)) * 3125;
+        pressure = pressure < 0x80000000 ? (pressure << 1) / var1 : (pressure / var1) * 2;
+        var1  = (bme280Calibration.DigP9()*(((pressure >> 3)*(pressure >> 3)) >> 13)) >> 12;
+        var2 = ((pressure >> 2) * bme280Calibration.DigP8()) >> 13;
+        pressure = pressure + ((var1 + var2 + bme280Calibration.DigP7()) >> 4);
+
+        return pressure;
     }
 
     /**
