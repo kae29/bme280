@@ -4,6 +4,9 @@ package bme280;
  * BME 280 Compensation parameter storage.
  */
 public final class Bme280CalibrationParams {
+    private final int MAX_2_BYTE = 0xFFFF;
+    private final int MAX_1_BYTE = 0xFF;
+
     /**
      * Temperature T1 Compensation parameter. 
      * Address: 0x88/0x89 dig_T1[7:0]/[15:8] unsigned short
@@ -118,12 +121,107 @@ public final class Bme280CalibrationParams {
     public long t_fine;
 
     /**
-     * Initialize Calibration parameters.
+     * Convert 1 or 2 byte number to signed
+     * @param input - input number to be converted
+     * @param nBytes - 1 or 2 (bytes)
+     * @return signed number
+     */
+    private int toSigned(int input, int nBytes) {
+        final int MAX = nBytes == 2? MAX_2_BYTE : MAX_1_BYTE;
+
+        if (input > MAX / 2) {
+            return input - MAX - 1;
+        }
+        return input;
+    }
+
+    /**
+     * Initialize Calibration parameters. (see Chapter 4.2.2)
      * @param bme280Sensor - BME 280 Sensor to read Calibration data
      */
     public Bme280CalibrationParams(Bme280Sensor bme280Sensor) {
-        // TODO: add read and store all calibration parameters at startup
+        // unsigned 2 byte
+        digT1 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_T1_REG) | 
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_T1_REG + 1) << 8);
+        // signed 2 byte
+        digT2 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_T2_REG) | 
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_T2_REG + 1) << 8);
+        digT2 = toSigned(digT2, 2);
+
+        // signed 2 byte
+        digT3 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_T3_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_T3_REG + 1) << 8);
+        digT3 = toSigned(digT3, 2);
         
+        // unsigned 2 byte
+        digP1 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P1_REG) | 
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P1_REG + 1) << 8);
+
+        // signed 2 byte
+        digP2 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P2_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P2_REG + 1) << 8);
+        digP2 = toSigned(digP2, 2);
+
+        // signed 2 byte
+        digP3 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P3_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P3_REG + 1) << 8);
+        digP3 = toSigned(digP3, 2);
+
+        // signed 2 byte
+        digP4 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P4_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P4_REG + 1) << 8);
+        digP4 = toSigned(digP4, 2);
+
+        // signed 2 byte
+        digP5 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P5_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P5_REG + 1) << 8);
+        digP5 = toSigned(digP5, 2);
+
+        // signed 2 byte
+        digP6 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P6_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P6_REG + 1) << 8);
+        digP6 = toSigned(digP6, 2);
+
+        // signed 2 byte
+        digP7 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P7_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P7_REG + 1) << 8);
+        digP7 = toSigned(digP7, 2);
+
+        // signed 2 byte
+        digP8 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P8_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P8_REG + 1) << 8);
+        digP8 = toSigned(digP8, 2);
+
+        // signed 2 byte
+        digP9 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_P9_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_P9_REG + 1) << 8);
+        digP9 = toSigned(digP9, 2);
+
+        // unsigned 1 byte
+        digH1 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_H1_REG);
+
+        // signed 2 byte
+        digH2 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_H2_REG) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_H2_REG + 1) << 8);
+        digH2 = toSigned(digH2, 2);
+
+        // unsigned 1 byte
+        digH3 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_H3_REG);
+
+        // signed 2 byte
+        digH4 = (bme280Sensor.readCalibrationData(Bme280Registers.DIG_H4_REG) << 4) |
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_H5_REG) & 0x0F);
+        digH4 = toSigned(digH4, 2);
+
+        // signed 2 byte
+        digH5 = ((bme280Sensor.readCalibrationData(Bme280Registers.DIG_H5_REG) & 0xF0) >> 4) | 
+                (bme280Sensor.readCalibrationData(Bme280Registers.DIG_H5_REG + 1) << 4);
+        digH5 = toSigned(digH5, 2);
+
+        // signed  1 byte
+        digH6 = bme280Sensor.readCalibrationData(Bme280Registers.DIG_H6_REG);
+        digH6 = toSigned(digH6, 1);
+
         t_fine = 0;
     }
 
