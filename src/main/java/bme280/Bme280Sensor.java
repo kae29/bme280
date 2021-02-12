@@ -198,9 +198,36 @@ public class Bme280Sensor {
     /**
      * Returns humidity in %RH as unsigned 32 bit integer.
      * Output value of “47445” represents 47445 = 47.445 %RH.
+     * see Chapter 4.2.3 Compensation formulas
      * @return current humidity
      */
     public long getHumidity() {
-      return 0;
+        final long HUMIDITY_MAX = 102400;
+
+        final long msb = bme280IO.readRegister(Bme280Registers.HUM_MSB);
+        final long lsb = bme280IO.readRegister(Bme280Registers.HUM_LSB);
+        final long rawData = (msb << 8) | lsb;
+
+        // Some magic below from oficial BME280.c file from Bosch
+        final long var1 = bme280Calibration.t_fine - 76800;
+        long var2 = rawData << 14;
+        long var3 = bme280Calibration.DigH4() << 20;
+        long var4 = bme280Calibration.DigH5() * var1;
+        long var5 = (((var2 - var3) - var4) + 16384) >> 15;
+
+        var2 = (var1 * bme280Calibration.DigH6()) >> 10;
+        var3 = (var1 * bme280Calibration.DigH3()) >> 11;
+        var4 = ((var2*(var3 + 32768)) >> 10) + 2097152;
+
+        var2 = (var4*bme280Calibration.DigH2()+8192) >> 14;
+        var3 = var5 * var2;
+        var4 = ((var3 >> 15) * (var3 >> 15)) >> 7;
+        var5 = var3 - ((var4 * bme280Calibration.DigH1()) >> 4);
+    
+        var5 = (var5 < 0 ? 0 : var5);
+        var5 = (var5 > 419430400 ? 419430400 : var5);
+        final long humidity = var5 >> 12;
+
+        return humidity > HUMIDITY_MAX ? HUMIDITY_MAX : humidity; 
     }
 }
