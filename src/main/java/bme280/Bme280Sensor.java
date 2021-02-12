@@ -145,10 +145,22 @@ public class Bme280Sensor {
     /**
      * Returns temperature in DegC, resolution is 0.01 DegC. 
      * Output value of “5123” equals 51.23 DegC.
+     * see Chapter 4.2.3 Compensation formulas
      * @return current Temperature
      */
     public long getTemperature() {
-      return 0;
+        final long msb = bme280IO.readRegister(Bme280Registers.TEMP_MSB);
+        final long lsb = bme280IO.readRegister(Bme280Registers.TEMP_LSB);
+        final long xlsb = bme280IO.readRegister(Bme280Registers.TEMP_XLSB) >> 4; // xlsb located in bits [7:4] see Table 18
+        
+        final long rawData = (msb << 12) | (lsb<<4) | xlsb;
+
+        long var1 = (((rawData >> 3)  - (bme280Calibration.DigT1() << 1))*bme280Calibration.DigT2() >> 11);
+        long var2 = ((rawData >> 4) - bme280Calibration.DigT1());
+        var2  = ((((var2*var2) >> 12)*bme280Calibration.DigT3()) >> 14);
+        bme280Calibration.t_fine = var1+var2;
+        
+        return (bme280Calibration.t_fine*5+128)>>8;
     }
 
     /**
